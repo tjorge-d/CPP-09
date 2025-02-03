@@ -39,7 +39,7 @@ int	BitcoinExchange::getDay(std::map<std::string, float>::iterator i)
 
 BitcoinExchange &BitcoinExchange::operator=(const BitcoinExchange &copy)
 {
-	std::cout << "BitcoinExchange copy assignment operator called\n";
+	//std::cout << "BitcoinExchange copy assignment operator called\n";
 	(void)copy;
 	_dataBase = copy._dataBase;
 	return (*this);

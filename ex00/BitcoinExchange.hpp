@@ -13,17 +13,17 @@ class BitcoinExchange
 {
 	private:
 		std::map<std::string, float>	_dataBase;
+		
+		BitcoinExchange&	operator=(const BitcoinExchange &copy);
+		BitcoinExchange(const BitcoinExchange &a);
 
 	public:
 		BitcoinExchange();
-		BitcoinExchange(const BitcoinExchange &a);
 		~BitcoinExchange() ;
 
 		int	getYear(std::map<std::string, float>::iterator i);
 		int	getMonth(std::map<std::string, float>::iterator i);
 		int	getDay(std::map<std::string, float>::iterator i);
-
-		BitcoinExchange&	operator=(const BitcoinExchange &copy);
 
 		void	fetchDataBase();
 		void	printDataBase();
