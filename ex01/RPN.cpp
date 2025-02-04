@@ -31,7 +31,6 @@ RPN&	RPN::operator=(const RPN &copy)
 
 void RPN::executeRPN(std::string input)
 {
-	std::string digits = "01*3456789";
 	std::string	operations = "+-/*";
 	unsigned long lenght = input.size();
 
@@ -68,62 +67,26 @@ void	RPN::executeOperation(char operation)
 {
 	if (_rpn.size() < 2)
 		throw InvalidOperation(operation);
+	float	x = _rpn.top();
+	_rpn.pop();
+	float	y = _rpn.top();
+	_rpn.pop();
 	switch (operation)
 	{
 		case '+':
-			additionOperation();
+			_rpn.push(x + y);
 			break;
 		case '-':
-			subtractionOperation();
+			_rpn.push(y - x);
 			break;
 		case '/':
-			divisionOperation();
+			_rpn.push(y / x);
 			break;
 		case '*':
-			multiplicationOperation();
+			_rpn.push(x * y);
 			break;
 	}
 
-}
-
-void	RPN::additionOperation()
-{
-	float	x = _rpn.top();
-	_rpn.pop();
-	float	y = _rpn.top();
-	_rpn.pop();
-	_rpn.push(x + y);
-	//std::cout << x << " + " << y << " = " << x + y << std::endl;
-}
-
-void	RPN::subtractionOperation()
-{
-	float	x = _rpn.top();
-	_rpn.pop();
-	float	y = _rpn.top();
-	_rpn.pop();
-	_rpn.push(y - x);
-	//std::cout << x << " - " << y << " = " << x - y << std::endl;
-}
-
-void	RPN::divisionOperation()
-{
-	float	x = _rpn.top();
-	_rpn.pop();
-	float	y = _rpn.top();
-	_rpn.pop();
-	_rpn.push(y / x);
-	//std::cout << x << " / " << y << " = " << x / y << std::endl;
-}
-
-void	RPN::multiplicationOperation()
-{
-	float	x = _rpn.top();
-	_rpn.pop();
-	float	y = _rpn.top();
-	_rpn.pop();
-	_rpn.push(x * y);
-	//std::cout << x << " * " << y << " = " << x * y << std::endl;
 }
 
 // EXCEPTIONS

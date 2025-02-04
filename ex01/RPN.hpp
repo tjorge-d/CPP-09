@@ -20,10 +20,6 @@ class RPN
 
 		void 	executeRPN(std::string input);
 		void	executeOperation(char operation);
-		void	additionOperation();
-		void	subtractionOperation();
-		void	divisionOperation();
-		void	multiplicationOperation();
 
 		class	InvalidChar : public std::runtime_error
 		{
