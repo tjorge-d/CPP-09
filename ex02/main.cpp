@@ -6,10 +6,11 @@ int main(int argc, char** argv)
 	{
 		PmergeMe	A(argv + 1, argc - 1);
 		std::cout << "Before:	";
-		A.printContainer();
-		//A.sort();
+		A.printContainers();
+		A.sortContainers();
 		std::cout << "After:	";
-		A.printContainer();
+		//A.printContainers();
+		A.printVector();
 	}
 	catch(const std::exception &e)
 	{
