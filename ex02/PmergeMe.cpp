@@ -16,7 +16,7 @@ PmergeMe::PmergeMe(char** sequence, size_t size)
 	_v.reserve(size - 1);
 	for (size_t i = 0; i < size; i++)
 	{
-		if (!hasOnlyDigits(sequence[i]))
+		if (!hasOnlyDigits(sequence[i]) || sequence[i][0] == '\0')
 			throw InvalidCharacters(sequence[i]);
 		number = strtol(sequence[i], NULL, 10);
 		if (number < 0)
@@ -72,30 +72,44 @@ void	PmergeMe::printVector()
 	{
 		std::cout << _v[i];
 		if (i < _v.size() - 1)
-		std::cout << " ";
-	}
-   std::cout << std::endl;
-}
-
-void	PmergeMe::printContainers()
-{
-	size_t								i = 0;
-	std::list<unsigned int>::iterator	it = _l.begin();
-
-	while (it != _l.end() && _v[i] == *it)
-	{
-		std::cout << _v[i];
-		++i;
-		++it;
-		if (it != _l.end() && _v[i] == *it)
 			std::cout << " ";
 	}
    std::cout << std::endl;
 }
 
+void	PmergeMe::printList()
+{
+	for (std::list<unsigned int>::iterator it = _l.begin(); it != _l.end(); it++)
+	{
+		std::cout << *it;
+		if (it != _l.end())
+			std::cout << " ";
+	}
+   std::cout << std::endl;
+}
+
+void	PmergeMe::checkSort()
+{
+	size_t								i = 1;
+	std::list<unsigned int>::iterator	it = _l.begin();
+	std::list<unsigned int>::iterator	Pit = _l.begin();
+	it++;
+
+	while (i < _v.size())
+	{
+		if (*it < *Pit)
+			throw UnsortedContainer("list");
+		if (_v[i] < _v[i - 1])
+			throw UnsortedContainer("vector");
+		i++;
+		it++;
+		Pit++;
+	}
+}
+
 void	PmergeMe::sortContainers()
 {
-	//sortList(newVector);
+	mergeInsertList(1);
 	mergeInsertVector(1);
 }
 
@@ -107,18 +121,18 @@ void	PmergeMe::swapVectorPairs(size_t step, size_t pos)
 
 size_t PmergeMe::binarySearchVector(std::vector<unsigned int> &K, unsigned int x, size_t step)
 {
-    size_t left = 0;
-    size_t right = K.size() / step;
+	size_t left = 0;
+	size_t right = K.size() / step;
 
 	while (left < right)
 	{
 		size_t mid = left + (right - left) / 2;
 		if (K[mid * step + step - 1] < x)
-            left = mid + 1;
+			left = mid + 1;
         else
-            right = mid;
-    }
-    return (left);
+			right = mid;
+	}
+	return (left);
 }
 
 void	PmergeMe::mergeInsertVector(size_t step)
@@ -132,7 +146,7 @@ void	PmergeMe::mergeInsertVector(size_t step)
 	while (i < _v.size())
 	{
 		if (_v[i] < _v[i - step])
-			swapPairs(step, i);
+			swapVectorPairs(step, i);
 		i += step * 2;
 	}
 	mergeInsertVector(step * 2);
@@ -146,7 +160,7 @@ void	PmergeMe::mergeInsertVector(size_t step)
 
 	// Adds the first and the greater halves of each pair to the main chain (no need to compare them)
 	K.insert(K.end(), begin, end);
-	for (size_t i = pairSize; i < _v.size() ; i += pairSize)
+	for (i = pairSize; i < _v.size() ; i += pairSize)
 	{
 		begin = _v.begin() + i - step;
 		end = begin + step;
@@ -169,7 +183,7 @@ void	PmergeMe::mergeInsertVector(size_t step)
 			begin =  _v.begin() + (i * pairSize - pairSize);
 			end = begin + step;
 			K.insert(K.begin() + binarySearchVector(K, _v[i * pairSize - step - 1], step) * step, begin, end);
-			i --;
+			i--;
 		}
 		i = currJacob;
 		currJacob = (lastJacob * 2) + currJacob;
@@ -184,9 +198,113 @@ void	PmergeMe::mergeInsertVector(size_t step)
 	std::swap(_v, K);
 }
 
-void	PmergeMe::sortList()
+void	PmergeMe::swapListPairs(size_t step, std::list<unsigned int>::iterator it, std::list<unsigned int>::iterator Pit)
 {
+	std::swap(*it, *Pit);
+	for( size_t i = 0; i < step - 1; i++)
+	{
+		std::advance(it, -1);
+		std::advance(Pit, -1);
+		std::swap(*it, *Pit);
+	}
+}
 
+size_t	PmergeMe::binarySearchList(std::list<unsigned int> &K, unsigned int x, size_t step)
+{
+	size_t left = 0;
+	size_t right = K.size() / step;
+	std::list<unsigned int>::iterator it;
+
+	while (left < right)
+	{
+		size_t mid = left + (right - left) / 2;
+		it = K.begin();
+		advance(it, mid * step + step - 1);
+		if (*it < x)
+			left = mid + 1;
+        else
+			right = mid;
+	}
+	return (left);
+}
+
+void	PmergeMe::mergeInsertList(size_t step)
+{
+	// Stop recursivety
+	if (step * 2 > _l.size())
+		return;
+	
+	// Sorts recursively the pairs ramping up their size
+	std::list<unsigned int>::iterator it;
+	std::list<unsigned int>::iterator Pit;
+	size_t	i = step * 2 - 1;
+	while (i < _l.size())
+	{
+		it = _l.begin();
+		advance(it, i);
+		Pit = _l.begin();
+		advance(Pit, i - step);
+		if (*it < *Pit)
+			swapListPairs(step, it, Pit);
+		i += step * 2;
+	}
+	mergeInsertList(step * 2);
+
+	// Creates a new list to be sorted (main chain)
+	std::list<unsigned int> K;
+	std::list<unsigned int>::iterator begin = _l.begin();
+	std::list<unsigned int>::iterator end = begin;
+	advance(end, step);
+	size_t	pairSize = step * 2;
+
+	// Adds the first and the greater halves of each pair to the main chain (no need to compare them)
+	K.insert(K.end(), begin, end);
+	for (i = pairSize; i < _l.size() ; i += pairSize)
+	{
+		begin = _l.begin();
+		advance(begin, i - step);
+		end = begin;
+		advance(end, step);
+		K.insert(K.end(), begin, end);
+	}
+
+	// Iterates through the List in the Jacobsthal Sequence order
+	size_t	lastJacob = 1;
+	size_t	currJacob = 3;
+	size_t	listSize =  _l.size() / pairSize;
+	listSize += (_l.size() / step != listSize * 2) ;
+	i = currJacob;
+	if (i > listSize)
+			i = listSize;	
+	while (lastJacob <= listSize)
+	{
+		// Inserts the lower halves into the main chain
+		while (i > lastJacob)
+		{
+			begin = _l.begin();
+			advance(begin, i * pairSize - pairSize);
+			end = begin;
+			advance(end, step);
+			it = _l.begin();
+			advance(it, i * pairSize - step - 1);
+			Pit = K.begin();
+			advance(Pit, binarySearchList(K, *it, step) * step);
+			K.insert(Pit, begin, end);
+			i--;
+		}
+		i = currJacob;
+		currJacob = (lastJacob * 2) + currJacob;
+		lastJacob = i;
+		i = currJacob;
+		if (lastJacob <= listSize && i > listSize)
+			i = listSize;
+	}
+
+	// Adds the non-paired leftovers to K
+	begin = _l.begin();
+	advance(begin, K.size());
+	K.insert(K.end(), begin, _l.end());
+	std::swap(_l, K);
 }
 
 // EXCEPTIONS
@@ -202,3 +320,6 @@ runtime_error("An element is greater than the maximum unsigned integer"){}
 
 PmergeMe::InvalidCharacters::InvalidCharacters(std::string info) :
 runtime_error("An element has an invalid charater (" + std::string(info) + ")"){}
+
+PmergeMe::UnsortedContainer::UnsortedContainer(std::string info) :
+runtime_error("The " + std::string(info) + " is unsorted"){}
