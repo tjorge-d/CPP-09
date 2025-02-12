@@ -99,51 +99,34 @@ void	PmergeMe::sortContainers()
 	mergeInsertVector(1);
 }
 
-void	PmergeMe::swapPairs(size_t step, size_t pos)
+void	PmergeMe::swapVectorPairs(size_t step, size_t pos)
 {
 	for( size_t i = 0; i < step; i++)
 		std::swap(_v[pos - i], _v[pos - i - step]);
 }
 
-size_t PmergeMe::binarySearchVector(std::vector<unsigned int> &K, size_t l, size_t r, unsigned int x, size_t step)
+size_t PmergeMe::binarySearchVector(std::vector<unsigned int> &K, unsigned int x, size_t step)
 {
-	std::cout << "SEARCHING " << x << "\n";
-	std::cout << "left = " << l << "\n";
-	std::cout << "right = " << r << "\n";
-	std::cout << "mid = " << l + (r - l) / 2 << " (" << K[(l + (r - l) / 2) * step + step - 1] << ")\n\n";
-	if (l < r)
-	{
-		size_t mid = l + (r - l) / 2;
-        if (x > K[mid * step + step - 1])
-			return (binarySearchVector(K, mid + 1, r, x, step));
-		else
-			return (binarySearchVector(K, l, mid, x, step));
-	}
-	std::cout << "RETURNED " << l * step + step - 1 << "\n";
-	return (l * step + step - 1);
-}
+    size_t left = 0;
+    size_t right = K.size() / step;
 
-void PmergeMe::InsertVector(std::vector<unsigned int> &K, size_t i, size_t main_i,  size_t step)
-{
-	//std::cout << "IN STEP " << step << "\n";
-	printVector();
-	std::cout << "\n";
-	for (size_t counter = 0; counter < step; counter++)
+	while (left < right)
 	{
-		std::cout << "Inserted " << _v[main_i - counter] << " in " << i << "\n";
-		K.insert(K.begin() + i, _v[main_i - counter]);
-		std::cout << "K[i] = " << K[i] << "\n";
-		printVector();
-		std::cout << "\n";
-	}
+		size_t mid = left + (right - left) / 2;
+		if (K[mid * step + step - 1] < x)
+            left = mid + 1;
+        else
+            right = mid;
+    }
+    return (left);
 }
 
 void	PmergeMe::mergeInsertVector(size_t step)
 {
+	// Stop recursivety
 	if (step * 2 > _v.size())
 		return;
-
-	std::cout << "IN STEP " << step << "\n";
+	
 	// Sorts recursively the pairs ramping up their size 
 	size_t	i = step * 2 - 1;
 	while (i < _v.size())
@@ -152,47 +135,53 @@ void	PmergeMe::mergeInsertVector(size_t step)
 			swapPairs(step, i);
 		i += step * 2;
 	}
-	printVector();
 	mergeInsertVector(step * 2);
-	std::cout << "IN STEP " << step << "\n";
 
 	// Creates a new vector to be sorted (main chain)
 	std::vector<unsigned int> K;
+	std::vector<unsigned int>::iterator begin = _v.begin();
+	std::vector<unsigned int>::iterator end = begin + step;
+	size_t	pairSize = step * 2;
 	K.reserve(_v.size());
 
 	// Adds the first and the greater halves of each pair to the main chain (no need to compare them)
-	std::cout << "inserted from  " << *(_v.begin()) << " to " << *(_v.begin() + step - 1) << "\n";
-	K.insert(K.end(),_v.begin(), _v.begin() + step - 1);
-	for (size_t i = (step * 2) - 1; i < _v.size() ; i += step * 2)
+	K.insert(K.end(), begin, end);
+	for (size_t i = pairSize; i < _v.size() ; i += pairSize)
 	{
-		std::vector<unsigned int>::iterator end = _v.begin() + i;
-		std::vector<unsigned int>::iterator begin = end - step + 1;
-		std::cout << "inserted from  " << *begin << " to " << *end << "\n";
+		begin = _v.begin() + i - step;
+		end = begin + step;
 		K.insert(K.end(), begin, end);
 	}
 
-	// Sets i to the next Jacobsthal Sequence number
-	int lastJacob = 1;
-	int currJacob = 3;
-	i = (step * currJacob) - 1;
-	while (i <= step * (_v.size() / step))
+	// Iterates through the Vector in the Jacobsthal Sequence order
+	size_t	lastJacob = 1;
+	size_t	currJacob = 3;
+	size_t	vecSize =  _v.size() / pairSize;
+	vecSize += (_v.size() / step != vecSize * 2) ;
+	i = currJacob;
+	if (i > vecSize)
+			i = vecSize;	
+	while (lastJacob <= vecSize)
 	{
-		while (i > step * lastJacob)
+		// Inserts the lower halves into the main chain
+		while (i > lastJacob)
 		{
-			//std::cout << "i = " << i << "\n";
-			//InsertVector(K, \
-			//binarySearchVector(K, 0, (K.size() / step) - 1, _v[i], step), i, step);
-			i -= step;
+			begin =  _v.begin() + (i * pairSize - pairSize);
+			end = begin + step;
+			K.insert(K.begin() + binarySearchVector(K, _v[i * pairSize - step - 1], step) * step, begin, end);
+			i --;
 		}
 		i = currJacob;
 		currJacob = (lastJacob * 2) + currJacob;
 		lastJacob = i;
-		i = (step * currJacob) - step / 2 - 1;
+		i = currJacob;
+		if (lastJacob <= vecSize && i > vecSize)
+			i = vecSize;
 	}
 
 	// Adds the non-paired leftovers to K
-	K.insert(K.end(), step, *_v.begin() + step * (_v.size() / step));
-	//std::swap(_v, K);
+	K.insert(K.end(), _v.begin() + K.size(), _v.end());
+	std::swap(_v, K);
 }
 
 void	PmergeMe::sortList()

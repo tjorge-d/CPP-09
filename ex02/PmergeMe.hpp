@@ -22,9 +22,12 @@ class PmergeMe
 		void	sortList();
 
 		void	mergeInsertVector(size_t step);
-		void	swapPairs(size_t step, size_t pos);
-		size_t	binarySearchVector(std::vector<unsigned int> &K, size_t low, size_t high, unsigned int x, size_t step);
-		void	InsertVector(std::vector<unsigned int> &K, size_t i, size_t pair_i,  size_t step);
+		void	swapVectorPairs(size_t step, size_t pos);
+		size_t	binarySearchVector(std::vector<unsigned int> &K, unsigned int x, size_t step);
+
+		void	mergeInsertList(size_t step);
+		void	swapListPairs(size_t step, size_t pos);
+		size_t	binarySearchList(std::List<unsigned int> &K, unsigned int x, size_t step);
 
 
 	public:
