@@ -8,13 +8,16 @@
 # include <vector>
 # include <list>
 # include <limits>
-# include <iterator>     
+# include <iterator>  
+# include <sys/time.h>  
 
 class PmergeMe
 {
 	private:
 		std::vector<unsigned int>	_v;
-		std::list<unsigned int>	_l;
+		std::list<unsigned int>		_l;
+		long						_vTime;
+		long						_lTime;
 	
 		PmergeMe();
 		PmergeMe(const PmergeMe &a);
@@ -33,9 +36,12 @@ class PmergeMe
 		PmergeMe(char** sequence, size_t size);
 		~PmergeMe() ;
 
+		long	getVTime();
+		long	getLTime();
+		size_t	getContainerSize();
+
 		PmergeMe&	operator=(const PmergeMe &copy);
 
-		void	printContainers();
 		void	printVector();
 		void	printList();
 		void	sortContainers();

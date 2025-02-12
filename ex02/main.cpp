@@ -4,14 +4,21 @@ int main(int argc, char** argv)
 {
 	try
 	{
-		PmergeMe	A(argv + 1, argc - 1);
+		PmergeMe	FordJohnson(argv + 1, argc - 1);
+
 		std::cout << "Before:	";
-		A.printVector();
-		A.sortContainers();
-		A.checkSort();
-		std::cout << "After:\n";
-		A.printList();
-		A.printVector();
+		FordJohnson.printVector();
+
+		FordJohnson.sortContainers();
+		FordJohnson.checkSort();
+
+		std::cout << "After:	";
+		FordJohnson.printList();
+
+		std::cout << "Time to process a range of " << FordJohnson.getContainerSize() \
+		<< " elements with std::list : " << FordJohnson.getLTime() << " μs" << std::endl;
+		std::cout << "Time to process a range of " << FordJohnson.getContainerSize() \
+		<< " elements with std::vector : " << FordJohnson.getVTime() << " μs" << std::endl;
 	}
 	catch(const std::exception &e)
 	{

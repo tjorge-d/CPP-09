@@ -16,6 +16,7 @@ PmergeMe::PmergeMe(char** sequence, size_t size)
 	_v.reserve(size - 1);
 	for (size_t i = 0; i < size; i++)
 	{
+		// Checks the validity of an argument
 		if (!hasOnlyDigits(sequence[i]) || sequence[i][0] == '\0')
 			throw InvalidCharacters(sequence[i]);
 		number = strtol(sequence[i], NULL, 10);
@@ -23,6 +24,8 @@ PmergeMe::PmergeMe(char** sequence, size_t size)
 			throw NegativeNumber();
 		if (number > std::numeric_limits<unsigned int>::max())
 			throw LargeNumber();
+
+		// Inserts the arguments if they are valid
 		_v.insert(_v.end(), number);
 		_l.insert(_l.end(), number);
 	}
@@ -39,12 +42,6 @@ PmergeMe::~PmergeMe()
 	//std::cout << "PmergeMe default destructor called\n";
 }
 
-// GETTERS
-
-
-// SETTERS
-
-
 // OPERATORS
 
 PmergeMe&	PmergeMe::operator=(const PmergeMe &copy)
@@ -52,6 +49,23 @@ PmergeMe&	PmergeMe::operator=(const PmergeMe &copy)
 	//std::cout << "PmergeMe copy assignment operator called\n";
 	(void)copy;
 	return (*this);
+}
+
+// GETTERS
+
+long	PmergeMe::getLTime()
+{
+	return (_lTime);
+}
+
+long	PmergeMe::getVTime()
+{
+	return (_vTime);
+}
+
+size_t	PmergeMe::getContainerSize()
+{
+	return (_l.size());
 }
 
 // MEMBER FUNCTIONS
@@ -109,12 +123,25 @@ void	PmergeMe::checkSort()
 
 void	PmergeMe::sortContainers()
 {
+	struct timeval				start;
+	struct timeval				end;
+
+	// Sorts the list and measures the time elapsed
+	gettimeofday(&start, NULL);
 	mergeInsertList(1);
+	gettimeofday(&end, NULL);
+	_lTime = (end.tv_sec - start.tv_sec) * 1000000 + (end.tv_usec - start.tv_usec);
+
+	// Sorts the vector and measures the time elapsed
+	gettimeofday(&start, NULL);
 	mergeInsertVector(1);
+	gettimeofday(&end, NULL);
+	_vTime = (end.tv_sec - start.tv_sec) * 1000000 + (end.tv_usec - start.tv_usec);
 }
 
 void	PmergeMe::swapVectorPairs(size_t step, size_t pos)
 {
+	// Swaps the pairs without breaking them 
 	for( size_t i = 0; i < step; i++)
 		std::swap(_v[pos - i], _v[pos - i - step]);
 }
